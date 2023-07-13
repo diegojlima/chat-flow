@@ -1,8 +1,3 @@
-
-provider "aws" {
-  region = var.region
-}
-
 resource "aws_lambda_function" "cache_lambda" {
   function_name = var.function_name
   handler       = var.handler
