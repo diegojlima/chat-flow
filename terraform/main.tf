@@ -1,22 +1,28 @@
 
 provider "aws" {
-  region = "us-west-2"
+  region = var.region
 }
 
-resource "aws_lambda_function" "chat2shop_cache" {
-  function_name = "chat2shop_cache"
-  role          = aws_iam_role.iam_for_lambda.arn
-  handler       = "app.lambda_handler"
-  
-  source_code_hash = filebase64sha256("lambda.zip")
-  runtime          = "python3.8"
+resource "aws_lambda_function" "cache_lambda" {
+  function_name = var.function_name
+  handler       = var.handler
+  role          = aws_iam_role.lambda_role.arn
+  runtime       = var.runtime
 
-  timeout = 60
-  memory_size = 128
+  filename = var.filename
+  source_code_hash = filebase64sha256(var.filename)
+
+  environment {
+    variables = {
+      MONGODB_URI = var.mongodb_uri
+      INTERACTION_QUEUE_URL = aws_sqs_queue.interaction_queue.url
+      PROCESSED_QUEUE_URL = aws_sqs_queue.processed_queue.url
+    }
+  }
 }
 
-resource "aws_iam_role" "iam_for_lambda" {
-  name = "iam_for_lambda"
+resource "aws_iam_role" "lambda_role" {
+  name = var.role_name
 
   assume_role_policy = <<EOF
 {
@@ -33,4 +39,56 @@ resource "aws_iam_role" "iam_for_lambda" {
   ]
 }
 EOF
+}
+
+resource "aws_iam_role_policy" "lambda_policy" {
+  name = var.policy_name
+  role = aws_iam_role.lambda_role.id
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "sqs:ReceiveMessage",
+        "sqs:DeleteMessage",
+        "sqs:GetQueueAttributes"
+      ],
+      "Resource": "${aws_sqs_queue.interaction_queue.arn}"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "sqs:SendMessage",
+        "sqs:GetQueueAttributes"
+      ],
+      "Resource": "${aws_sqs_queue.processed_queue.arn}"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_sqs_queue" "interaction_queue" {
+  name = var.interaction_queue_name
+}
+
+resource "aws_sqs_queue" "processed_queue" {
+  name = var.processed_queue_name
+}
+
+resource "aws_lambda_event_source_mapping" "interaction_queue_mapping" {
+  event_source_arn = aws_sqs_queue.interaction_queue.arn
+  function_name = aws_lambda_function.cache_lambda.function_name
 }
