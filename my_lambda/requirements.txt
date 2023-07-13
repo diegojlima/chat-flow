@@ -5,3 +5,4 @@ pytest
 moto
 
 mongomock
+boto3

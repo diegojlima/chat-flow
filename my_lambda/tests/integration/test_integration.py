@@ -1,10 +1,10 @@
 
 import pytest
 from pymongo import MongoClient
-from moto import mock_mongodb
-from app import lambda_handler
+from mongomock import MongoClient
+from my_lambda.app import lambda_handler
 
-@mock_mongodb
+
 def test_lambda_handler():
     # Create a mock MongoDB client
     client = MongoClient()
@@ -18,7 +18,7 @@ def test_lambda_handler():
         'message': 'Test message',
     }
 
-    response = lambda_handler(event, None)
+    response = lambda_handler(event, None, db)
 
     # Verify that the message was stored in the database
     conversation = conversations.find_one({'_id': '123'})

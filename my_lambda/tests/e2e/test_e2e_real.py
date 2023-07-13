@@ -12,8 +12,14 @@ def test_e2e_real():
 
     # Prepare a message to send to the queue
     message_to_send = {
-        'conversation_id': '123',
-        'message': 'Test message'
+        'Records': [{
+            'messageAttributes': {
+                'PhoneNumber': {
+                    'stringValue': '123',
+                },
+            },
+            'body': 'Test message',
+        }],
     }
 
     # Send a message to the queue
@@ -26,9 +32,9 @@ def test_e2e_real():
     time.sleep(10)
 
     # Check the results
-    assert check_database_for_expected_results(message_to_send)
+    assert check_database_for_expected_results(message_to_send['Records'][0]['body'])
 
-def check_database_for_expected_results(expected_message):
+def check_database_for_expected_results(expected_body):
     # Create a client for SQS
     sqs = boto3.client('sqs')
 
@@ -44,10 +50,10 @@ def check_database_for_expected_results(expected_message):
     # Check the contents of the message
     if 'Messages' in response:
         message = response['Messages'][0]
-        message_body = json.loads(message['Body'])  # Convert the message body from a JSON string to a dict
+        message_body = message['Body']
 
-        # Check that the message body matches the expected message
-        assert message_body == expected_message
+        # Check that the message body matches the expected body
+        assert message_body == expected_body
     else:
         # If no messages were returned, fail the test
         assert False, "No messages in processed queue"

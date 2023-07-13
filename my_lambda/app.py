@@ -5,14 +5,15 @@ import boto3
 from datetime import datetime, timedelta
 from pymongo import MongoClient
 
-# Initialize the SQS client
-sqs = boto3.client('sqs')
-
-# Connect to MongoDB
-client = MongoClient(os.environ['MONGODB_URI'])
-db = client.chat2shop
 
 def lambda_handler(event, context):
+    # Initialize the SQS client
+    sqs = boto3.client('sqs')
+
+    # Connect to MongoDB
+    client = MongoClient(os.environ['MONGODB_URI'])
+    db = client.chatflow
+
     # Extract the conversation ID and message from the SQS message
     conversation_id = event['Records'][0]['messageAttributes']['PhoneNumber']['stringValue']
     message = event['Records'][0]['body']
