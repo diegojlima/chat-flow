@@ -1,89 +1,81 @@
-resource "aws_lambda_function" "cache_lambda" {
-  function_name = var.function_name
-  handler       = var.handler
-  role          = aws_iam_role.lambda_role.arn
-  runtime       = var.runtime
 
-  filename = var.filename
-  source_code_hash = filebase64sha256(var.filename)
-
-  environment {
-    variables = {
-      MONGODB_URI = var.mongodb_uri
-      INTERACTION_QUEUE_URL = aws_sqs_queue.interaction_queue.url
-      PROCESSED_QUEUE_URL = aws_sqs_queue.processed_queue.url
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.0"
     }
   }
 }
 
-resource "aws_iam_role" "lambda_role" {
-  name = var.role_name
+provider "aws" {
+  region  = var.aws_region
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
+}
 
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "lambda.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
+data "aws_iam_policy_document" "assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
     }
-  ]
-}
-EOF
+  }
 }
 
-resource "aws_iam_role_policy" "lambda_policy" {
-  name = var.policy_name
-  role = aws_iam_role.lambda_role.id
+resource "aws_iam_role" "lambda_exec_role" {
+  name               = "lambda_exec_role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
+}
 
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "logs:CreateLogGroup",
-        "logs:CreateLogStream",
-        "logs:PutLogEvents"
-      ],
-      "Resource": "*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "sqs:ReceiveMessage",
-        "sqs:DeleteMessage",
-        "sqs:GetQueueAttributes"
-      ],
-      "Resource": "${aws_sqs_queue.interaction_queue.arn}"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "sqs:SendMessage",
-        "sqs:GetQueueAttributes"
-      ],
-      "Resource": "${aws_sqs_queue.processed_queue.arn}"
+resource "aws_lambda_function" "chat_flow_service" {
+  filename      = "${path.module}/../lambda/deployment_package.zip"
+  function_name = var.lambda_function_name
+  role          = aws_iam_role.lambda_exec_role.arn
+  handler       = var.lambda_handler
+  runtime       = var.lambda_runtime
+
+  environment {
+    variables = {
+      MONGODB_URI            = aws_docdb_cluster.example.endpoint
+      PROCESSED_QUEUE_URL    = aws_sqs_queue.processed_queue.url
+      INTERACTION_QUEUE_URL  = aws_sqs_queue.interaction_queue.url
     }
-  ]
-}
-EOF
+  }
+
+  source_code_hash = filebase64sha256("${path.module}/../lambda/deployment_package.zip")
 }
 
 resource "aws_sqs_queue" "interaction_queue" {
-  name = var.interaction_queue_name
+  name = "interaction_queue"
 }
 
 resource "aws_sqs_queue" "processed_queue" {
-  name = var.processed_queue_name
+  name = "processed_queue"
 }
 
-resource "aws_lambda_event_source_mapping" "interaction_queue_mapping" {
-  event_source_arn = aws_sqs_queue.interaction_queue.arn
-  function_name = aws_lambda_function.cache_lambda.function_name
+resource "aws_docdb_cluster" "example" {
+  cluster_identifier      = "docdb-cluster-example"
+  master_username         = var.mongodb_username
+  master_password         = var.mongodb_password
+  backup_retention_period = 5
+  preferred_backup_window = "07:00-09:00"
+  skip_final_snapshot     = true
+}
+
+output "lambda_function_name" {
+  value = aws_lambda_function.chat_flow_service.function_name
+}
+
+output "interaction_queue_url" {
+  value = aws_sqs_queue.interaction_queue.url
+}
+
+output "processed_queue_url" {
+  value = aws_sqs_queue.processed_queue.url
+}
+
+output "mongodb_endpoint" {
+  value = aws_docdb_cluster.example.endpoint
 }

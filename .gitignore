@@ -1,0 +1,10 @@
+# Ignore specific files
+../.DS_Store
+
+# Ignore untracked files
+../lambda/deployment_package.zip
+.terraform.lock.hcl
+.terraform/
+terraform.tfstate
+terraform.tfstate.1689258363.backup
+terraform.tfstate.backup
