@@ -21,7 +21,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r lambda/requirements.txt
-          pip install pytest boto3
 
       - name: Create deployment package
         run: bash create_deployment_package.sh
