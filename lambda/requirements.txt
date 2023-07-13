@@ -1,0 +1,7 @@
+
+pymongo
+
+pytest
+moto
+
+mongomock
