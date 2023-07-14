@@ -19,6 +19,7 @@
     "typescript": "^4.2.4"
   },
   "devDependencies": {
+    "@shelf/jest-mongodb": "^4.1.7",
     "@types/aws-lambda": "^8.10.119",
     "@types/jest": "^26.0.24",
     "@types/mongodb": "^4.0.7",

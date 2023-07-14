@@ -55,6 +55,21 @@ resource "aws_lambda_event_source_mapping" "sqs_lambda_mapping" {
 
 resource "aws_sqs_queue" "interaction_queue" {
   name = "interaction_queue"
+  visibility_timeout_seconds = 300 // 5 minutes
+  redrive_policy             = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.interaction_dead_letter_queue.arn
+    maxReceiveCount     = 3
+  })
+}
+
+resource "aws_sqs_queue" "interaction_dead_letter_queue" {
+  name = "interaction_dead_letter_queue"
+}
+
+resource "aws_lambda_event_source_mapping" "sqs_lambda_mapping" {
+  event_source_arn = aws_sqs_queue.interaction_queue.arn
+  function_name    = aws_lambda_function.chat_flow_service.arn
+  maximum_retry_attempts = 3
 }
 
 resource "aws_sqs_queue" "processed_queue" {

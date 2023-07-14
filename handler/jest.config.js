@@ -9,5 +9,6 @@ module.exports = {
     coverageDirectory: 'coverage',
     coverageProvider: 'v8',
     coverageReporters: ['text', 'lcov'],
+    preset: "@shelf/jest-mongodb",
   };
   
