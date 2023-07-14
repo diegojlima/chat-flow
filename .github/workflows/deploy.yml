@@ -30,6 +30,9 @@ jobs:
         run: npm test
         working-directory: handler
 
+      - name: Create deployment package
+        run: zip -r handler/dist/lambda_function.zip handler/dist/*
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
