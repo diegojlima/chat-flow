@@ -36,6 +36,10 @@ resource "aws_lambda_function" "chat_flow_service" {
   handler       = var.lambda_handler
   runtime       = var.lambda_runtime
 
+  timeouts {
+    create = "3m"
+  }
+
   environment {
     variables = {
       MONGODB_URI            = aws_docdb_cluster.example.endpoint
