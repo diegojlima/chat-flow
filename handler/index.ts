@@ -1,3 +1,14 @@
+import { SQS } from 'aws-sdk';
+import { MongoClient, Db, Collection } from 'mongodb';
+import { Callback, Context, SQSEvent } from 'aws-lambda';
+import { SendMessageRequest } from 'aws-sdk/clients/sqs';
+
+interface Conversation {
+    _id: string;
+    messages: string[];
+    start_time: Date;
+}
+
 export const handler = async (event: SQSEvent, context: Context): Promise<void> => {
     console.log('Starting execution');
     
@@ -79,3 +90,4 @@ export const handler = async (event: SQSEvent, context: Context): Promise<void> 
     
     console.log('Execution complete');
 }
+
