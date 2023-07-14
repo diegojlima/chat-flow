@@ -33,9 +33,12 @@ variable "filename" {
 }
 
 variable "mongodb_username" {
-  description = "Username for MongoDB"
+  description = "The username for MongoDB"
+  sensitive   = true
 }
 
 variable "mongodb_password" {
-  description = "Password for MongoDB"
+  description = "The password for MongoDB"
+  sensitive   = true
 }
+

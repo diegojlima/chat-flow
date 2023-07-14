@@ -41,10 +41,11 @@ resource "aws_lambda_function" "chat_flow_service" {
       MONGODB_URI            = aws_docdb_cluster.example.endpoint
       PROCESSED_QUEUE_URL    = aws_sqs_queue.processed_queue.url
       INTERACTION_QUEUE_URL  = aws_sqs_queue.interaction_queue.url
+      MONGODB_USERNAME       = var.mongodb_username
+      MONGODB_PASSWORD       = var.mongodb_password
     }
   }
 
-  source_code_hash = filebase64sha256("${path.module}/../lambda/deployment_package.zip")
 }
 
 resource "aws_sqs_queue" "interaction_queue" {
