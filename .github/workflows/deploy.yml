@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          npm ci --only=prod
+          npm i
           npm run build
         working-directory: handler
 
