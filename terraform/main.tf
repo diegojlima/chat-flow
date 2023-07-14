@@ -36,16 +36,13 @@ resource "aws_lambda_function" "chat_flow_service" {
   handler       = var.lambda_handler
   runtime       = var.lambda_runtime
 
-  dynamic "environment" {
-    for_each = {
+  environment {
+    variables = {
       MONGODB_URI            = aws_docdb_cluster.example.endpoint
       PROCESSED_QUEUE_URL    = aws_sqs_queue.processed_queue.arn
       INTERACTION_QUEUE_URL  = aws_sqs_queue.interaction_queue.arn
       MONGODB_USERNAME       = var.mongodb_username
       MONGODB_PASSWORD       = var.mongodb_password
-    }
-    content {
-      variables = environment.value
     }
   }
 
