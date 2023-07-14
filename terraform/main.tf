@@ -36,13 +36,16 @@ resource "aws_lambda_function" "chat_flow_service" {
   handler       = var.lambda_handler
   runtime       = var.lambda_runtime
 
-  environment {
-    variables = {
+  dynamic "environment" {
+    for_each = {
       MONGODB_URI            = aws_docdb_cluster.example.endpoint
-      PROCESSED_QUEUE_URL    = data.aws_sqs_queue.processed_queue.url
-      INTERACTION_QUEUE_URL  = data.aws_sqs_queue.interaction_queue.url
+      PROCESSED_QUEUE_URL    = aws_sqs_queue.processed_queue.arn
+      INTERACTION_QUEUE_URL  = aws_sqs_queue.interaction_queue.arn
       MONGODB_USERNAME       = var.mongodb_username
       MONGODB_PASSWORD       = var.mongodb_password
+    }
+    content {
+      variables = environment.value
     }
   }
 
@@ -69,12 +72,12 @@ output "lambda_function_name" {
   value = aws_lambda_function.chat_flow_service.function_name
 }
 
-output "interaction_queue_url" {
-  value = aws_sqs_queue.interaction_queue.url
+output "interaction_queue_arn" {
+  value = aws_sqs_queue.interaction_queue.arn
 }
 
-output "processed_queue_url" {
-  value = aws_sqs_queue.processed_queue.url
+output "processed_queue_arn" {
+  value = aws_sqs_queue.processed_queue.arn
 }
 
 output "mongodb_endpoint" {

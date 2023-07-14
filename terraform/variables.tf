@@ -40,3 +40,11 @@ variable "mongodb_password" {
   description = "The password for MongoDB"
 }
 
+
+variable "mongodb_username" {
+  description = "Username for MongoDB"
+}
+
+variable "mongodb_password" {
+  description = "Password for MongoDB"
+}
