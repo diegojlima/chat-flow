@@ -86,3 +86,6 @@ async function lambdaHandler(event: SQSEvent, context: Context, callback: Callba
         body: 'Message processed and cached successfully',
     });
 }
+
+// Export the handler function. This is what AWS Lambda will call.
+exports.lambdaHandler = lambdaHandler;
