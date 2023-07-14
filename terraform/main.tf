@@ -30,7 +30,7 @@ resource "aws_iam_role" "lambda_exec_role" {
 }
 
 resource "aws_lambda_function" "chat_flow_service" {
-  filename      = "../handler/dist/lambda_function.zip"
+  filename      = "../handler/lambda_function.zip"
   function_name = var.lambda_function_name
   role          = aws_iam_role.lambda_exec_role.arn
   handler       = var.lambda_handler
