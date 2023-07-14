@@ -39,8 +39,8 @@ resource "aws_lambda_function" "chat_flow_service" {
   environment {
     variables = {
       MONGODB_URI            = aws_docdb_cluster.example.endpoint
-      PROCESSED_QUEUE_URL    = aws_sqs_queue.processed_queue.url
-      INTERACTION_QUEUE_URL  = aws_sqs_queue.interaction_queue.url
+      PROCESSED_QUEUE_URL    = data.aws_sqs_queue.processed_queue.url
+      INTERACTION_QUEUE_URL  = data.aws_sqs_queue.interaction_queue.url
       MONGODB_USERNAME       = var.mongodb_username
       MONGODB_PASSWORD       = var.mongodb_password
     }
