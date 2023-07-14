@@ -45,7 +45,11 @@ resource "aws_lambda_function" "chat_flow_service" {
       MONGODB_PASSWORD       = var.mongodb_password
     }
   }
+}
 
+resource "aws_lambda_event_source_mapping" "sqs_lambda_mapping" {
+  event_source_arn = aws_sqs_queue.interaction_queue.arn
+  function_name    = aws_lambda_function.chat_flow_service.arn
 }
 
 resource "aws_sqs_queue" "interaction_queue" {
