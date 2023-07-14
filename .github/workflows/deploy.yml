@@ -17,12 +17,12 @@ jobs:
         with:
           node-version: '14'
 
-      - name: Install dependencies
+      - name: Install dependencies and build
         run: |
           npm ci --only=prod
+          npm run build
+        working-directory: handler
 
-      - name: Build
-        run: npm run build
 
       - name: Run tests
         run: npm test
