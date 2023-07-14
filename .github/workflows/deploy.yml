@@ -37,14 +37,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Initialize and apply Terraform
+      - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          path: terraform
-          backend_config_file: backend.tfvars
-          var_file: terraform.tfvars
-          workspace: default
           terraform_version: 0.12.26
+
+      - name: Initialize and apply Terraform
+        run: |
+          cd terraform
+          terraform init
+          terraform apply -auto-approve
         env:
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_REGION: us-east-1
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           TF_VAR_mongodb_username: ${{ secrets.MONGODB_USERNAME }}
           TF_VAR_mongodb_password: ${{ secrets.MONGODB_PASSWORD }}
