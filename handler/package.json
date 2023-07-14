@@ -5,7 +5,7 @@
   "main": "app.ts",
   "scripts": {
     "test": "jest",
-    "build": "tsc",
+    "build": "esbuild --bundle src/app.ts --platform=node --outfile=dist/app.js --target=node14",
     "start": "node ."
   },
   "keywords": [],

@@ -9,7 +9,7 @@ interface Conversation {
     start_time: Date;
 }
 
-async function lambdaHandler(event: SQSEvent, context: Context, callback: Callback): Promise<void> {
+export const handler = async (event: SQSEvent, context: Context): Promise<void> => {
     // Initialize the SQS client
     const sqs = new SQS();
 
@@ -60,7 +60,6 @@ async function lambdaHandler(event: SQSEvent, context: Context, callback: Callba
     } catch (error: any) {
         if (error.code) {
             console.error(`AWS error occurred: ${error.code}`);
-            callback(error);
             return;
         }
         // handle non-AWS errors
@@ -75,17 +74,8 @@ async function lambdaHandler(event: SQSEvent, context: Context, callback: Callba
     } catch (error: any) {
         if (error.code) {
             console.error(`AWS error occurred: ${error.code}`);
-            callback(error);
             return;
         }
         // handle non-AWS errors
     }
-
-    callback(null, {
-        statusCode: 200,
-        body: 'Message processed and cached successfully',
-    });
 }
-
-// Export the handler function. This is what AWS Lambda will call.
-exports.lambdaHandler = lambdaHandler;
