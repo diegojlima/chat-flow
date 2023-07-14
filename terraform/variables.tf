@@ -19,7 +19,7 @@ variable "lambda_function_name" {
 
 variable "lambda_handler" {
   description = "Lambda function entrypoint (format: <file-name>.<function-name>)"
-  default     = "handler/dist/app.lambdaHandler"
+  default     = "dist/app.lambdaHandler"
 }
 
 variable "lambda_runtime" {
