@@ -2,10 +2,12 @@
   "name": "handler",
   "version": "1.0.0",
   "description": "",
-  "main": "app.ts",
+  "main": "index.ts",
   "scripts": {
     "test": "jest",
-    "build": "esbuild --bundle src/app.ts --platform=node --outfile=dist/app.js --target=node14",
+    "prebuild": "rm -rf dist",
+    "build": "esbuild index.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outfile=dist/index.js",
+    "postbuild": "cd dist && zip -r index.zip index.js*",
     "start": "node ."
   },
   "keywords": [],

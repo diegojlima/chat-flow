@@ -19,7 +19,7 @@ variable "lambda_function_name" {
 
 variable "lambda_handler" {
   description = "Lambda function entrypoint (format: <file-name>.<function-name>)"
-  default     = "dist/app.handler"
+  default     = "dist/index.handler"
 }
 
 variable "lambda_runtime" {
@@ -29,7 +29,7 @@ variable "lambda_runtime" {
 
 variable "filename" {
   description = "Name of the deployment package ZIP file"
-  default     = "lambda_function.zip"
+  default     = "index.zip"
 }
 
 variable "mongodb_username" {
