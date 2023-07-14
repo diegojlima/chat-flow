@@ -35,10 +35,7 @@ resource "aws_lambda_function" "chat_flow_service" {
   role          = aws_iam_role.lambda_exec_role.arn
   handler       = var.lambda_handler
   runtime       = var.lambda_runtime
-
-  timeouts {
-    create = "3m"
-  }
+  timeout       = 180  // Execution timeout in seconds
 
   environment {
     variables = {
