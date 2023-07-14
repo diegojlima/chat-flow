@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.119",
-    "@types/jest": "^26.0.23",
+    "@types/jest": "^26.0.24",
     "@types/mongodb": "^4.0.7",
     "esbuild": "^0.18.12",
     "jest": "^26.6.3",
