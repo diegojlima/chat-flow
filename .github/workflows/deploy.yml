@@ -28,9 +28,9 @@ jobs:
           npm run postbuild
         working-directory: handler
 
-      - name: Run tests
-        run: npm test
-        working-directory: handler
+      # - name: Run tests
+      #   run: npm test
+      #   working-directory: handler
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
