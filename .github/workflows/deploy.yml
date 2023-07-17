@@ -12,6 +12,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
       - name: Install dependencies and build
         run: |
           docker run --rm -v $PWD:/var/task lambci/lambda:build-nodejs14.x /bin/sh -c "cd handler; npm i; npm run prebuild; npm run build; npm run postbuild;"
