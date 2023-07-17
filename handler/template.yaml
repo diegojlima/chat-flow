@@ -1,0 +1,13 @@
+Resources:
+  ChatFlowService:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs14.x
+      CodeUri: dist
+      Timeout: 30
+      Events:
+        MySQSEvent:
+          Type: SQS
+          Properties:
+            Queue: arn:aws:sqs:us-east-1:123456789012:my-queue # replace with your queue ARN

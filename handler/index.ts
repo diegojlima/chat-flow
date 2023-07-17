@@ -9,8 +9,8 @@ interface Conversation {
     start_time: Date;
 }
 
-export const handler = async (event: SQSEvent, context: Context): Promise<void> => {
-    console.log('Starting execution');
+exports.handler = async (event: SQSEvent, context: Context): Promise<void> => {
+    console.log('Received event:', JSON.stringify(event, null, 2));
     
     // Initialize the SQS client
     const sqs = new SQS();
