@@ -19,12 +19,12 @@ variable "lambda_function_name" {
 
 variable "lambda_handler" {
   description = "Lambda function entrypoint (format: <file-name>.<function-name>)"
-  default     = "index.handler"
+  default     = "index/index.handler"
 }
 
 variable "lambda_runtime" {
   description = "Runtime language for the Lambda function"
-  default     = "nodejs14.x"
+  default     = "nodejs18.x"
 }
 
 variable "filename" {
