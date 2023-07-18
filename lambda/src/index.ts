@@ -1,7 +1,6 @@
-import { SQS } from 'aws-sdk';
 import { MongoClient, Db, Collection } from 'mongodb';
 import { Context, Handler, SQSEvent } from 'aws-lambda';
-import { SendMessageRequest } from 'aws-sdk/clients/sqs';
+import SQS, { SendMessageRequest } from 'aws-sdk/clients/sqs';
 
 interface Conversation {
     _id: string;
