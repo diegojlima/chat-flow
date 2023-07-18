@@ -50,6 +50,8 @@ resource "aws_lambda_function" "chat_flow_service" {
   runtime       = var.lambda_runtime
   timeout       = 180  // Execution timeout in seconds
 
+  layers = [aws_lambda_layer_version.dependency_layer.arn]
+
   environment {
     variables = {
       MONGODB_URI            = aws_docdb_cluster.example.endpoint
