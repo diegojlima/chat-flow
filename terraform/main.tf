@@ -24,13 +24,26 @@ data "aws_iam_policy_document" "assume_role_policy" {
   }
 }
 
+data "archive_file" "function_archive" {
+  type        = "zip"
+  source_dir  = "${path.module}/../lambda/dist"
+  output_path = "${path.module}/../lambda/dist/function.zip"
+}
+
+resource "aws_lambda_layer_version" "dependency_layer" {
+  filename            = "${path.module}/../dist/layers/layers.zip"
+  layer_name          = "dependency_layer"
+  compatible_runtimes = ["nodejs18.x"]
+  source_code_hash    = "${base64sha256(file("${path.module}/../dist/layers/layers.zip"))}"
+}
+
 resource "aws_iam_role" "lambda_exec_role" {
   name               = "lambda_exec_role"
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
 }
 
 resource "aws_lambda_function" "chat_flow_service" {
-  filename      = "../handler/dist/index.zip"
+  filename      = "${data.archive_file.function_archive.output_path}"
   function_name = var.lambda_function_name
   role          = aws_iam_role.lambda_exec_role.arn
   handler       = var.lambda_handler
