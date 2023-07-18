@@ -27,7 +27,7 @@ data "aws_iam_policy_document" "assume_role_policy" {
 data "archive_file" "function_archive" {
   type        = "zip"
   source_dir  = "${path.module}/../lambda/dist"
-  output_path = "${path.module}/../lambda/dist/function.zip"
+  output_path = "${path.module}/../lambda/dist/function_${timestamp()}.zip"
 }
 
 resource "aws_lambda_layer_version" "dependency_layer" {
@@ -43,7 +43,7 @@ resource "aws_iam_role" "lambda_exec_role" {
 }
 
 resource "aws_lambda_function" "chat_flow_service" {
-  filename      = "${data.archive_file.function_archive.output_path}"
+  filename      = data.archive_file.function_archive.output_path
   function_name = var.lambda_function_name
   role          = aws_iam_role.lambda_exec_role.arn
   handler       = var.lambda_handler
