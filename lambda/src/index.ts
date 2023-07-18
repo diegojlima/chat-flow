@@ -1,6 +1,7 @@
 import { MongoClient, Db, Collection } from 'mongodb';
 import { Context, Handler, SQSEvent } from 'aws-lambda';
 import SQS, { SendMessageRequest } from 'aws-sdk/clients/sqs';
+import { SecretsManager } from 'aws-sdk';
 
 interface Conversation {
     _id: string;
@@ -8,23 +9,40 @@ interface Conversation {
     start_time: Date;
 }
 
-const client: MongoClient = buildMongoClient();
+let client: MongoClient;
 
-function buildMongoClient(): MongoClient {
-    const mongoUser = encodeURIComponent(process.env.MONGODB_USERNAME!);
-    const mongoPassword = encodeURIComponent(process.env.MONGODB_PASSWORD!);
-    const mongoServer = process.env.MONGODB_URI!;
-    const mongoDatabase = 'chatflow'; // replace with your database name if different
-  
-    const url = `mongodb://${mongoUser}:${mongoPassword}@${mongoServer}/${mongoDatabase}`;
-  
+async function buildMongoClient(): Promise<MongoClient> {
+    // Create a Secrets Manager client
+    const secretsManager = new SecretsManager({ region: "us-east-1" });
+    
+    let secretValue;
+    try {
+        // Retrieve the secret value
+        const response = await secretsManager.getSecretValue({ SecretId: "chat-flow-secret" }).promise();
+        secretValue = JSON.parse(response.SecretString || '{}');
+    } catch (error) {
+        console.error('Error retrieving secret value:', error);
+        throw error;
+    }
+
+    const mongoUser = encodeURIComponent(secretValue.username);
+    const mongoPassword = encodeURIComponent(secretValue.password);
+    const mongoServer = secretValue.host;
+    const mongoDatabase = secretValue.dbClusterIdentifier; // replace with your database name if different
+
+    const url = `mongodb://${mongoUser}:${mongoPassword}@${mongoServer}:${secretValue.port}/${mongoDatabase}?ssl=${secretValue.ssl}&retryWrites=false`;
+
     const options = {};  // set any MongoClientOptions here, if needed
-  
+
     return new MongoClient(url, options);
-  }
+}
 
 export const handler: Handler = async (event: SQSEvent, context: Context): Promise<void> => {
     try {
+        if (!client) {
+            client = await buildMongoClient();
+        }
+        
         console.log('Received event:', JSON.stringify(event, null, 2));
         
         // Initialize the SQS client
@@ -109,4 +127,3 @@ export const handler: Handler = async (event: SQSEvent, context: Context): Promi
         console.error('Error occurred:', error);
     }
 }
-
