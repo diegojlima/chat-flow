@@ -22,6 +22,7 @@ jobs:
 
       - name: Install dependencies and build
         run: |
+          npm run cleanup
           npm run script:build-dependency-layer
           npm run build
 
