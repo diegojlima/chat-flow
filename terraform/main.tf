@@ -34,7 +34,7 @@ resource "aws_lambda_layer_version" "dependency_layer" {
   filename            = "${path.module}/../dist/layers/layers.zip"
   layer_name          = "dependency_layer"
   compatible_runtimes = ["nodejs18.x"]
-  source_code_hash    = "${base64sha256(file("${path.module}/../dist/layers/layers.zip"))}"
+  source_code_hash    = filesha256("${path.module}/../dist/layers/layers.zip")
 }
 
 resource "aws_iam_role" "lambda_exec_role" {
