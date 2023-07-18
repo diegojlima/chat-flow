@@ -8,6 +8,21 @@ interface Conversation {
     start_time: Date;
 }
 
+const client: MongoClient = buildMongoClient();
+
+function buildMongoClient(): MongoClient {
+    const mongoUser = encodeURIComponent(process.env.MONGODB_USERNAME!);
+    const mongoPassword = encodeURIComponent(process.env.MONGODB_PASSWORD!);
+    const mongoServer = process.env.MONGODB_URI!;
+    const mongoDatabase = 'chatflow'; // replace with your database name if different
+  
+    const url = `mongodb://${mongoUser}:${mongoPassword}@${mongoServer}/${mongoDatabase}`;
+  
+    const options = {};  // set any MongoClientOptions here, if needed
+  
+    return new MongoClient(url, options);
+  }
+
 export const handler: Handler = async (event: SQSEvent, context: Context): Promise<void> => {
     try {
         console.log('Received event:', JSON.stringify(event, null, 2));
@@ -17,7 +32,8 @@ export const handler: Handler = async (event: SQSEvent, context: Context): Promi
 
         // Connect to MongoDB
         console.log('Connecting to MongoDB');
-        const client = await MongoClient.connect(process.env.MONGODB_URI!);
+        await client.connect();
+        console.log('Connected to MongoDB');
         const db: Db = client.db('chatflow');
         const conversations: Collection<Conversation> = db.collection('conversations');
 
