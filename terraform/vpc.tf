@@ -5,11 +5,21 @@ resource "aws_vpc" "main" {
   }
 }
 
-resource "aws_subnet" "main" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.1.0/24"
+resource "aws_subnet" "subnet1" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = "AZ1"
   tags = {
-    Name = "main"
+    Name = "subnet1"
+  }
+}
+
+resource "aws_subnet" "subnet2" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "AZ2"
+  tags = {
+    Name = "subnet2"
   }
 }
 
@@ -17,22 +27,27 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 }
 
-resource "aws_eip" "nat" {
-  vpc = true
+resource "aws_route_table" "main" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+
+  tags = {
+    Name = "main"
+  }
 }
 
-resource "aws_nat_gateway" "nat" {
-  allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.main.id
+resource "aws_route_table_association" "subnet1" {
+  subnet_id      = aws_subnet.subnet1.id
+  route_table_id = aws_route_table.main.id
 }
 
-data "aws_route_table" "existing" {
-  route_table_id = "rtb-09a23bf061b3f7bf5"
-}
-
-resource "aws_route_table_association" "a" {
-  subnet_id      = aws_subnet.main.id
-  route_table_id = data.aws_route_table.existing.id
+resource "aws_route_table_association" "subnet2" {
+  subnet_id      = aws_subnet.subnet2.id
+  route_table_id = aws_route_table.main.id
 }
 
 resource "aws_security_group" "sg" {
@@ -43,7 +58,7 @@ resource "aws_security_group" "sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["10.0.0.0/16"] # Limit to VPC CIDR for example
   }
 
   egress {
